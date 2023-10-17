@@ -22,14 +22,14 @@ public class DividaTecnica {
     private UUID id;
 
     @Column(unique = true)
-    private String NomeDoProjeto;
+    private String nomeDaDividaTecnica;
     private String descricaoDaDT;
 
     @CreationTimestamp
     private LocalDateTime diaDoCadastro;
 
     // Relação muitos para um com Projeto
-    @ManyToOne
-    @JoinColumn(name = "projeto_id") // Coluna que representa a chave estrangeira
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "projeto_id") // Coluna que representa a chave estrangeira para o projeto
     private Projeto projeto;
 }

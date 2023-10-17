@@ -1,5 +1,6 @@
 package great.project.backapp.model.entity;
 
+import great.project.backapp.model.StatusProjeto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,13 +24,16 @@ public class Projeto {
     private UUID id;
 
     @Column(unique = true)
-    private String NomeDoProjeto;
+    private String nomeDoProjeto;
     private String descricao;
     private String setor;
     private String empresa;
     private String nomeDoLiderDoProjeto;
-    private String prioridade;
     private String dataDeInicioDoProjeto;
+
+    @Enumerated(EnumType.STRING)  // Mapeia o enum como String
+    @Column(name = "statusProjeto")  // Renomeando para evitar conflito com a palavra-chave 'status'
+    private StatusProjeto statusProjeto;
 
     private UUID idUser;
 
