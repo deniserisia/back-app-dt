@@ -31,6 +31,8 @@ public class Projeto {
     private String prioridade;
     private String dataDeInicioDoProjeto;
 
+    private UUID idUser;
+
     @CreationTimestamp
     private LocalDateTime diaDoCadastro;
 
