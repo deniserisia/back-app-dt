@@ -8,15 +8,14 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-@Entity(name ="Projetos")
-public class Projeto {
+@Entity(name ="Dividas_Tecnicas")
+public class DividaTecnica {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -24,17 +23,13 @@ public class Projeto {
 
     @Column(unique = true)
     private String NomeDoProjeto;
-    private String descricao;
-    private String setor;
-    private String empresa;
-    private String nomeDoLiderDoProjeto;
-    private String prioridade;
-    private String dataDeInicioDoProjeto;
+    private String descricaoDaDT;
 
     @CreationTimestamp
     private LocalDateTime diaDoCadastro;
 
-    // Relação um para muitos com DividaTecnica
-    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL)
-    private List<DividaTecnica> dividasTecnicas;
+    // Relação muitos para um com Projeto
+    @ManyToOne
+    @JoinColumn(name = "projeto_id") // Coluna que representa a chave estrangeira
+    private Projeto projeto;
 }
