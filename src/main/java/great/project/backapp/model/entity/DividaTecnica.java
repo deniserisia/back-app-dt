@@ -1,5 +1,7 @@
 package great.project.backapp.model.entity;
 
+import great.project.backapp.model.SatusDaFaseDeGerenciamentoDT;
+import great.project.backapp.model.StatusDoPagamentoDT;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,11 +27,18 @@ public class DividaTecnica {
     private String nomeDaDividaTecnica;
     private String descricaoDaDT;
 
+
+    @JoinColumn(name = "statusDoPagamento")
+    private StatusDoPagamentoDT statusDoPagamento;
+
+    @JoinColumn(name = "statusDaFaseDeGerenciamento")
+    private SatusDaFaseDeGerenciamentoDT statusDaFaseDeGerenciamento;
+
     @CreationTimestamp
     private LocalDateTime diaDoCadastro;
 
     // Relação muitos para um com Projeto
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "projeto_id") // Coluna que representa a chave estrangeira para o projeto
     private Projeto projeto;
 }

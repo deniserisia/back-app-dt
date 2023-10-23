@@ -1,42 +1,28 @@
 package great.project.backapp.service;
 
-//import great.project.backapp.exception.UsuarioCadastradoException;
-//import great.project.backapp.model.entity.Usuario;
-//import great.project.backapp.model.repository.UsuarioRepository;
-//import great.project.backapp.repository.UsuarioRepository;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.core.userdetails.User;
-//import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.security.core.userdetails.UserDetailsService;
-//import org.springframework.security.core.userdetails.UsernameNotFoundException;
-//import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import great.project.backapp.model.UsuarioRoles;
+import great.project.backapp.model.entity.Usuario;
+import great.project.backapp.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-//@Service
-//public class UsuarioService implements UserDetailsService {
+import java.util.List;
 
-    //@Autowired
-    //private UsuarioRepository usuarioRepository;
 
-    //public Usuario salvar(Usuario usuario) {
-      //  boolean exists = usuarioRepository.existsByUsername(usuario.getUsername());
-      //  if (exists) {
-      //      throw new UsuarioCadastradoException(usuario.getUsername());
-     //   }
-     //   return usuarioRepository.save(usuario);
-    //}
+@Service
+public class UsuarioService{
 
-    //@Override
-    //public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-       // Usuario usuario = usuarioRepository.findByUsername(username)
-        //        .orElseThrow(() -> new UsernameNotFoundException("Login não encontrado."));
 
-      //  return Usuario.builder()
-     //           .username(usuario.getUsername())
-     //           .password(usuario.getPassword())
-     //           .roles("USER")
-    //            .build();
-  //  }
-//}
+    @Autowired
+    private final UsuarioRepository usuarioRepository;
+
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+        }
+
+   // public List<Usuario> findAdminUsers() {
+   //     return usuarioRepository.findByRolesContaining(UsuarioRoles.USER_ADMIN);
+   // }
+}
 

@@ -25,7 +25,7 @@ public class FilterAuth extends OncePerRequestFilter {
 
         var serveletPath = request.getServletPath();
 
-        if (serveletPath.startsWith("/api/projeto")){
+        if (serveletPath.startsWith("/api/")){
             var authorization = request.getHeader("Authorization");
             var authEncoded = authorization.substring("Basic".length()).trim();
 
