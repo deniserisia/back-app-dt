@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/divida-tecnica")
+@RequestMapping("/servico/divida-tecnica")
 public class DividaTecnicaController {
 
     @Autowired
