@@ -27,7 +27,6 @@ public class DividaTecnica {
     private String nomeDaDividaTecnica;
     private String descricaoDaDT;
 
-
     @JoinColumn(name = "statusDoPagamento")
     private StatusDoPagamentoDT statusDoPagamento;
 

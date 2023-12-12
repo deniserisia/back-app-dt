@@ -25,12 +25,12 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private String signingKey;
 
     @Bean
-    public TokenStore tokenStore(){
+    public TokenStore tokenStore() {
         return new JwtTokenStore(accessTokenConverter());
     }
 
     @Bean
-    public JwtAccessTokenConverter accessTokenConverter(){
+    public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter tokenConverter = new JwtAccessTokenConverter();
         tokenConverter.setSigningKey(signingKey);
         return tokenConverter;
@@ -48,7 +48,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients
                 .inMemory()
-                .withClient("my-angular-app")
+                .withClient("front-dt")
                 .secret("@321")
                 .scopes("read", "write")
                 .authorizedGrantTypes("password")
