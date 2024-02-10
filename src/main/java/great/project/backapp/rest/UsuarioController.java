@@ -21,23 +21,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsuarioController {
 
-    private final UsuarioService service;
+    private final UsuarioService usuarioService;
+    //private final UsuarioService usuarioService;
 
-    @Autowired
-    private final UsuarioRepository usuarioRepository;
-
-    @PostMapping("/cadastro")
-    public ResponseEntity create(@RequestBody Usuario usuario){
-        var user = this.usuarioRepository.findByUsername(usuario.getUsername());
-        if (user != null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Escolha outro username, por favor, esse já existe!");
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void salvar(@RequestBody @Valid Usuario usuario){
+        try {
+            usuarioService.salvar(usuario);
+        }catch (UsuarioCadastradoException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-
-        // cripto bd - password
-        var passwordHashred = BCrypt.withDefaults().hashToString(12 , usuario.getPassword().toCharArray());
-        usuario.setPassword(passwordHashred);
-
-        var userCreated = this.usuarioRepository.save(usuario);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Usuário criado com sucesso!");
     }
 }

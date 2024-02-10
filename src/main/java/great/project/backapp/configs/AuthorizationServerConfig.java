@@ -21,17 +21,19 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private AuthenticationManager authenticationManager;
 
     @Value("${security.jwt.signing-key}")
-    private String signingKey;
+    private String sigingKey;
 
+    // gerar um token em store
     @Bean
-    public TokenStore tokenStore() {
+    public TokenStore tokenStore(){
         return new JwtTokenStore(accessTokenConverter());
     }
 
+    // convertendo o token em JWT
     @Bean
-    public JwtAccessTokenConverter accessTokenConverter() {
+    public JwtAccessTokenConverter accessTokenConverter(){
         JwtAccessTokenConverter tokenConverter = new JwtAccessTokenConverter();
-        tokenConverter.setSigningKey(signingKey);
+        tokenConverter.setSigningKey(sigingKey);
         return tokenConverter;
     }
 

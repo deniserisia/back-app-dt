@@ -29,7 +29,7 @@ public class FilterTaskAuth extends OncePerRequestFilter {
 
         var serveletPath = request.getServletPath();
 
-        if (serveletPath.startsWith("/servico/projeto/cadastrar")){
+        if (serveletPath.startsWith("/gerente/projeto/cadastrar")){
             var authorization = request.getHeader("Authorization");
             var authEncoded = authorization.substring("Basic".length()).trim();
 

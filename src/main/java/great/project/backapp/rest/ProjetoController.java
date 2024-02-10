@@ -14,13 +14,18 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/servico/projeto")
+@RequestMapping("/gerente")
 public class ProjetoController {
 
     @Autowired
     private ProjetoRepository projetoRepository;
 
-    @PostMapping("/cadastrar")
+    @GetMapping
+    public List<Projeto> obterTodos(){
+        return projetoRepository.findAll();
+    }
+
+    @PostMapping
     public ResponseEntity salvar(@RequestBody Projeto projeto, HttpServletRequest request) {
         var idUser = request.getAttribute("idUser");
         projeto.setIdUser((UUID) idUser);
@@ -28,11 +33,22 @@ public class ProjetoController {
         return ResponseEntity.status(HttpStatus.OK).body(project);
     }
 
-    @GetMapping("/meus-projetos")
+    @GetMapping("/{id}")
     public List<Projeto> listarProjetosPorId(HttpServletRequest request){
         var idUser = request.getAttribute("idUser");
         var projetos = this.projetoRepository.findByIdUser((UUID) idUser);
         return projetos;
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Long> obterNumeroDeProjetosDoUsuario(HttpServletRequest request) {
+        try {
+            var idUser = request.getAttribute("idUser");
+            Long numeroDeProjetos = projetoRepository.countByIdUser((UUID) idUser);
+            return ResponseEntity.ok(numeroDeProjetos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -55,7 +71,6 @@ public class ProjetoController {
                 .map( projeto -> {
                     projeto.setNomeDoProjeto(projetoAtualizado.getNomeDoProjeto());
                     projeto.setNomeDoLiderDoProjeto(projetoAtualizado.getNomeDoLiderDoProjeto());
-                    projeto.setDataDeInicioDoProjeto(projetoAtualizado.getDataDeInicioDoProjeto());
                     projeto.setEmpresa(projetoAtualizado.getEmpresa());
                     projeto.setDescricao(projetoAtualizado.getDescricao());
                     projeto.setSetor(projetoAtualizado.getSetor());
