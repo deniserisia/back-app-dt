@@ -14,29 +14,28 @@ import org.springframework.stereotype.Service;
 public class UsuarioService implements UserDetailsService {
 
     @Autowired
-    private UsuarioRepository repository;
+    private UsuarioRepository usuarioRepository;
 
     public Usuario salvar(Usuario usuario){
-        boolean exists = repository.existsByUsername(usuario.getUsername());
+        Boolean exists = usuarioRepository.existsByUsername(usuario.getUsername());
         if(exists){
             throw new UsuarioCadastradoException(usuario.getUsername());
         }
-        return repository.save(usuario);
+        return usuarioRepository.save(usuario);
     }
 
     @Override
-    public UserDetails loadUserByUsername( String username ) throws UsernameNotFoundException {
-        Usuario usuario = repository
-                .findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Login não encontrado.") );
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Usuario usuario = usuarioRepository
+                .findByUsername(username);
+                //.orElseThrow(() -> new UsernameNotFoundException("Login não encontrado"));
 
         return User
                 .builder()
                 .username(usuario.getUsername())
                 .password(usuario.getPassword())
                 .roles("USER")
-                .build()
-                ;
+                .build();
     }
 }
 

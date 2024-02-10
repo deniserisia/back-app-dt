@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
 
     List<Projeto> findByIdUser(UUID idUser);
+
+    Long countByIdUser(UUID idUser);
 }
