@@ -1,6 +1,7 @@
 package great.project.backapp.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import great.project.backapp.model.StatusDoPagamentoDT;
 import great.project.backapp.model.StatusProjeto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,24 +19,26 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Data
-@Entity(name ="Projetos")
+@Entity(name ="Projeto")
 public class Projeto {
 
     @Id
     @GeneratedValue(generator = "UUID")
     private UUID id;
 
-    @Column(unique = true)
+    @Column(unique = true, name = "nomeDoProjeto")
     private String nomeDoProjeto;
+    @Column(name = "descricao")
     private String descricao;
+    @Column(name = "setor")
     private String setor;
+    @Column(name = "empresa")
     private String empresa;
+    @Column(name = "nomeDoLiderDoProjeto")
     private String nomeDoLiderDoProjeto;
-    private String statusProjeto;
 
-    //@Enumerated(EnumType.STRING)  // Mapeia o enum como String
-    //@Column(name = "statusProjeto")  // Renomeando para evitar conflito com a palavra-chave 'status'
-    //private StatusProjeto statusProjeto;
+    @JoinColumn(name = "statusDoProjeto")
+    private StatusProjeto statusProjeto;
 
     private UUID idUser;
 

@@ -1,7 +1,6 @@
 package great.project.backapp.model.entity;
 
 
-import great.project.backapp.model.UsuarioRoles;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
