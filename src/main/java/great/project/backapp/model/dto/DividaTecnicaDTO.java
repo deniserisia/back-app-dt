@@ -1,45 +1,39 @@
-package great.project.backapp.model.entity;
+package great.project.backapp.rest.dto;
 
 import great.project.backapp.model.SatusDaFaseDeGerenciamentoDT;
 import great.project.backapp.model.StatusDoPagamentoDT;
+import great.project.backapp.model.dto.ProjetoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
-@Entity(name ="Dividas_Tecnicas")
-public class DividaTecnica {
+public class DividaTecnicaDTO {
 
-    @Id
-    @GeneratedValue(generator = "UUID")
     private UUID id;
-
-    @Column(unique = true)
     private String nomeDaDividaTecnica;
     private String descricaoDaDT;
-
-    @ManyToOne
-    @JoinColumn(name = "id_projeto")
-    private Projeto projeto;
-
-    @JoinColumn(name = "statusDoPagamento")
+    private UUID projetoId;
     private StatusDoPagamentoDT statusDoPagamento;
-
-    @JoinColumn(name = "statusDaFaseDeGerenciamento")
     private SatusDaFaseDeGerenciamentoDT statusDaFaseDeGerenciamento;
-
-    @CreationTimestamp
     private LocalDateTime diaDoCadastro;
-
     private UUID idUser;
 
+    private ProjetoDTO projeto;
+
+    @Builder
+    public DividaTecnicaDTO(
+            // Outras propriedades
+            ProjetoDTO projeto
+    ) {
+        // Inicialização de outras propriedades
+        this.projeto = projeto;
+    }
 }

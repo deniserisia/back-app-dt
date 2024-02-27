@@ -1,5 +1,7 @@
 package great.project.backapp.rest;
 
+import great.project.backapp.model.dto.ContagemPorMesDTO;
+import great.project.backapp.model.dto.ProjetoDTO;
 import great.project.backapp.model.entity.Projeto;
 import great.project.backapp.repository.ProjetoRepository;
 import lombok.var;
@@ -11,19 +13,82 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/gerente")
+@RequestMapping("/gerente/projeto")
 public class ProjetoController {
 
     @Autowired
     private ProjetoRepository projetoRepository;
 
-    @GetMapping
-    public List<Projeto> obterTodos(){
-        return projetoRepository.findAll();
+   // @GetMapping("/todos")
+   // public List<Projeto> obterTodos(){
+    //    return projetoRepository.findAll();
+    //}
+    //@GetMapping("/obterProjetosDoUsuario")
+    //public List<Projeto> obterProjetosDoUsuario(HttpServletRequest request) {
+      //  try {
+        //    var idUser = request.getAttribute("idUser");
+          //  var projeto = projetoRepository.findByIdUser((UUID) idUser);
+          //  return projeto;
+       // } catch (Exception e) {
+        //    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao obter projetos do usuário", e);
+       // }
+    //}
+
+    @GetMapping("/todos")
+    public List<Projeto> obterTodos(HttpServletRequest request){
+        try {
+            var idUser = (UUID) request.getAttribute("idUser");
+            return projetoRepository.findByIdUser(idUser);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao obter todos os projetos do usuário", e);
+        }
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Projeto> obterProjetoPorId(@PathVariable UUID id) {
+        try {
+            Optional<Projeto> projetoOptional = projetoRepository.findById(id);
+            return projetoOptional.map(projeto -> ResponseEntity.ok().body(projeto))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProjetoDTO>> obterProjetos() {
+        List<Projeto> projetos = projetoRepository.findAll();
+        List<ProjetoDTO> projetoDTOs = projetos.stream()
+                .map(projeto -> {
+                    ProjetoDTO projetoDTO = new ProjetoDTO();
+                    projetoDTO.setId(projeto.getId());
+                    projetoDTO.setNomeDoProjeto(projeto.getNomeDoProjeto());
+                    return projetoDTO;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(projetoDTOs);
+    }
+
+
+    @GetMapping("/pesquisar")
+    public List<Projeto> pesquisarProjetosBD(
+            @RequestParam(value = "nomeDoProjeto", required = false, defaultValue = "") String nomeDoProjeto,
+            @RequestParam(value = "empresa", required = false, defaultValue = "") String empresa
+    ) {
+        return projetoRepository.findByNomeDoProjetoAndEmpresa("%" + nomeDoProjeto + "%", empresa);
+    }
+
 
     @PostMapping
     public ResponseEntity salvar(@RequestBody Projeto projeto, HttpServletRequest request) {
@@ -33,12 +98,6 @@ public class ProjetoController {
         return ResponseEntity.status(HttpStatus.OK).body(project);
     }
 
-    @GetMapping("/{id}")
-    public List<Projeto> listarProjetosPorId(HttpServletRequest request){
-        var idUser = request.getAttribute("idUser");
-        var projetos = this.projetoRepository.findByIdUser((UUID) idUser);
-        return projetos;
-    }
 
     @GetMapping("/count")
     public ResponseEntity<Long> obterNumeroDeProjetosDoUsuario(HttpServletRequest request) {
@@ -46,6 +105,29 @@ public class ProjetoController {
             var idUser = request.getAttribute("idUser");
             Long numeroDeProjetos = projetoRepository.countByIdUser((UUID) idUser);
             return ResponseEntity.ok(numeroDeProjetos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/contagem-projetos-por-mes")
+    public ResponseEntity<List<ContagemPorMesDTO>> obterContagemProjetosPorMes() {
+        try {
+            List<Projeto> projetos = projetoRepository.findAll();
+
+            // Agrupa os projetos por mês
+            Map<String, Long> contagemPorMes = projetos.stream()
+                    .collect(Collectors.groupingBy(
+                            projeto -> projeto.getDataCadastro().format(DateTimeFormatter.ofPattern("MM/yyyy")),
+                            Collectors.counting()
+                    ));
+
+            // Converte o mapa para uma lista de objetos DTO
+            List<ContagemPorMesDTO> resultado = contagemPorMes.entrySet().stream()
+                    .map(entry -> new ContagemPorMesDTO(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(resultado);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -74,7 +156,7 @@ public class ProjetoController {
                     projeto.setEmpresa(projetoAtualizado.getEmpresa());
                     projeto.setDescricao(projetoAtualizado.getDescricao());
                     projeto.setSetor(projetoAtualizado.getSetor());
-
+                    projeto.setStatusProjeto(projetoAtualizado.getStatusProjeto());
                     return projetoRepository.save(projeto);
                 })
                 .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Projeto não encontrado!") );

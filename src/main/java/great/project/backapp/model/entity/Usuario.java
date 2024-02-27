@@ -1,7 +1,6 @@
 package great.project.backapp.model.entity;
 
 
-import great.project.backapp.model.UsuarioRoles;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,5 +32,13 @@ public class Usuario {
     @Column(name = "senha")
     private String password;
 
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "nomeDaEmpresa")
+    private String nomeDaEmpresa;
+
+    @Column(name = "setorDaEmpresa")
+    private String setorDaEmpresa;
 
 }

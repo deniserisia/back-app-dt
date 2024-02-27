@@ -4,6 +4,7 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import great.project.backapp.exception.UsuarioCadastradoException;
 import great.project.backapp.model.entity.Usuario;
 import great.project.backapp.repository.UsuarioRepository;
+import great.project.backapp.service.PerfilUsuarioService;
 import great.project.backapp.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
@@ -22,7 +23,8 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-    //private final UsuarioService usuarioService;
+
+    private final PerfilUsuarioService perfilUsuarioService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -32,5 +34,11 @@ public class UsuarioController {
         }catch (UsuarioCadastradoException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
+    }
+
+    @GetMapping("/perfil")
+    public ResponseEntity<Usuario> obterPerfilUsuario() {
+        Usuario usuario = perfilUsuarioService.obterUsuarioAutenticado();
+        return ResponseEntity.ok(usuario);
     }
 }
