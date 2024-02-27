@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres-container
+    environment:
+      POSTGRES_DB: gd
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-container
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/gd
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=true
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL=true
+      - SECURITY_JWT_SIGNING_KEY=byBzb2wgbsOjbyDDqSBhenVs
+      - SPRING_MVC_PATHMATCH_MATCHING_STRATEGY=ANT_PATH_MATCHER
+      - LOGGING_LEVEL_ORG_HIBERNATE_SQL
+      - SPRING_JPA_SHOW_SQL=true
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres

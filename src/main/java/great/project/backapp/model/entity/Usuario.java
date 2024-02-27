@@ -32,5 +32,13 @@ public class Usuario {
     @Column(name = "senha")
     private String password;
 
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "nomeDaEmpresa")
+    private String nomeDaEmpresa;
+
+    @Column(name = "setorDaEmpresa")
+    private String setorDaEmpresa;
 
 }

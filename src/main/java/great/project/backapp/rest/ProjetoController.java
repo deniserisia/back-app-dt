@@ -1,5 +1,6 @@
 package great.project.backapp.rest;
 
+import great.project.backapp.model.dto.ContagemPorMesDTO;
 import great.project.backapp.model.dto.ProjetoDTO;
 import great.project.backapp.model.entity.Projeto;
 import great.project.backapp.repository.ProjetoRepository;
@@ -14,6 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -104,6 +110,29 @@ public class ProjetoController {
         }
     }
 
+    @GetMapping("/contagem-projetos-por-mes")
+    public ResponseEntity<List<ContagemPorMesDTO>> obterContagemProjetosPorMes() {
+        try {
+            List<Projeto> projetos = projetoRepository.findAll();
+
+            // Agrupa os projetos por mês
+            Map<String, Long> contagemPorMes = projetos.stream()
+                    .collect(Collectors.groupingBy(
+                            projeto -> projeto.getDataCadastro().format(DateTimeFormatter.ofPattern("MM/yyyy")),
+                            Collectors.counting()
+                    ));
+
+            // Converte o mapa para uma lista de objetos DTO
+            List<ContagemPorMesDTO> resultado = contagemPorMes.entrySet().stream()
+                    .map(entry -> new ContagemPorMesDTO(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(resultado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarProjeto( @PathVariable UUID id ){
@@ -127,7 +156,7 @@ public class ProjetoController {
                     projeto.setEmpresa(projetoAtualizado.getEmpresa());
                     projeto.setDescricao(projetoAtualizado.getDescricao());
                     projeto.setSetor(projetoAtualizado.getSetor());
-
+                    projeto.setStatusProjeto(projetoAtualizado.getStatusProjeto());
                     return projetoRepository.save(projeto);
                 })
                 .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Projeto não encontrado!") );
