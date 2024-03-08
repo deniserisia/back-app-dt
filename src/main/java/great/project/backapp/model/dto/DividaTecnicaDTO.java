@@ -1,6 +1,6 @@
-package great.project.backapp.rest.dto;
+package great.project.backapp.model.dto;
 
-import great.project.backapp.model.SatusDaFaseDeGerenciamentoDT;
+import great.project.backapp.model.StatusDaFaseDeGerenciamentoDT;
 import great.project.backapp.model.StatusDoPagamentoDT;
 import great.project.backapp.model.dto.ProjetoDTO;
 import lombok.AllArgsConstructor;
@@ -22,7 +22,7 @@ public class DividaTecnicaDTO {
     private String descricaoDaDT;
     private UUID projetoId;
     private StatusDoPagamentoDT statusDoPagamento;
-    private SatusDaFaseDeGerenciamentoDT statusDaFaseDeGerenciamento;
+    private StatusDaFaseDeGerenciamentoDT statusDaFaseDeGerenciamentoDT;
     private LocalDateTime diaDoCadastro;
     private UUID idUser;
 

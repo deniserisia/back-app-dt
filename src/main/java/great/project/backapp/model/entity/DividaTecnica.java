@@ -1,7 +1,8 @@
 package great.project.backapp.model.entity;
 
-import great.project.backapp.model.SatusDaFaseDeGerenciamentoDT;
+import great.project.backapp.model.StatusDaFaseDeGerenciamentoDT;
 import great.project.backapp.model.StatusDoPagamentoDT;
+import great.project.backapp.model.TipoDeDividaTecnica;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,19 +24,23 @@ public class DividaTecnica {
     @GeneratedValue(generator = "UUID")
     private UUID id;
 
-    @Column(unique = true)
-    private String nomeDaDividaTecnica;
+    @Column(name = "tipo_de_divida_tecnica")
+    @Enumerated(EnumType.STRING)
+    private TipoDeDividaTecnica tipoDeDividaTecnica;
+
     private String descricaoDaDT;
 
     @ManyToOne
     @JoinColumn(name = "id_projeto")
     private Projeto projeto;
 
-    @JoinColumn(name = "statusDoPagamento")
-    private StatusDoPagamentoDT statusDoPagamento;
+    @Column(name = "status_pagamento")
+    @Enumerated(EnumType.STRING)
+    private StatusDoPagamentoDT statusDoPagamentoDT;
 
-    @JoinColumn(name = "statusDaFaseDeGerenciamento")
-    private SatusDaFaseDeGerenciamentoDT statusDaFaseDeGerenciamento;
+    @Column(name = "fase_gerenciamento")
+    @Enumerated(EnumType.STRING)
+    private StatusDaFaseDeGerenciamentoDT statusDaFaseDeGerenciamentoDT;
 
     @CreationTimestamp
     private LocalDateTime diaDoCadastro;

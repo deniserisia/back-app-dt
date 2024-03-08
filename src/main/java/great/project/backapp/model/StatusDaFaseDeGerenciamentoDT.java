@@ -1,6 +1,6 @@
 package great.project.backapp.model;
 
-public enum SatusDaFaseDeGerenciamentoDT {
+public enum StatusDaFaseDeGerenciamentoDT {
 
     IDENTIFICACAO,
     MENSURACAO,

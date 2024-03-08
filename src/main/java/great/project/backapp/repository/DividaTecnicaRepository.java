@@ -1,5 +1,6 @@
 package great.project.backapp.repository;
 
+import great.project.backapp.model.TipoDeDividaTecnica;
 import great.project.backapp.model.entity.DividaTecnica;
 import great.project.backapp.model.entity.Projeto;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,6 @@ public interface DividaTecnicaRepository extends JpaRepository<DividaTecnica, UU
     List<DividaTecnica> findByIdUser(UUID idUser);
 
     Long countByIdUser(UUID idUser);
+
+    Long countByTipoDeDividaTecnicaAndIdUser(TipoDeDividaTecnica tipo, UUID idUser);
 }

@@ -18,4 +18,7 @@ public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
             "where upper(c.nomeDoProjeto) like upper(:nomeDoProjeto) and upper(c.empresa) like upper(:empresa)")
     List<Projeto> findByNomeDoProjetoAndEmpresa(
             @Param("nomeDoProjeto") String nomeDoProjeto, @Param("empresa") String empresa);
+
+    @Query("SELECT SUM(p.quantidadeDePessoasNoTimeDeDev) FROM Projeto p WHERE p.idUser = :idUser")
+    Long sumQuantidadeDePessoasNoTimeDeDevByIdUser(@Param("idUser") UUID idUser);
 }

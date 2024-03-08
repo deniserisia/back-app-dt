@@ -37,6 +37,9 @@ public class Projeto {
     @Column(name = "nomeDoLiderDoProjeto")
     private String nomeDoLiderDoProjeto;
 
+    @Column(name = "quantidadeDePessoasNoTimeDeDev")
+    private Integer quantidadeDePessoasNoTimeDeDev;
+
     @JoinColumn(name = "statusDoProjeto")
     private StatusProjeto statusProjeto;
 

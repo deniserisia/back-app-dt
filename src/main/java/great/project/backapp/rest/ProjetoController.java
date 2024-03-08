@@ -1,7 +1,7 @@
 package great.project.backapp.rest;
 
-import great.project.backapp.model.dto.ContagemPorMesDTO;
 import great.project.backapp.model.dto.ProjetoDTO;
+import great.project.backapp.model.entity.DividaTecnica;
 import great.project.backapp.model.entity.Projeto;
 import great.project.backapp.repository.ProjetoRepository;
 import lombok.var;
@@ -16,11 +16,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import java.time.Month;
+import java.util.HashMap;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/gerente/projeto")
@@ -110,28 +115,62 @@ public class ProjetoController {
         }
     }
 
-    @GetMapping("/contagem-projetos-por-mes")
-    public ResponseEntity<List<ContagemPorMesDTO>> obterContagemProjetosPorMes() {
+
+
+    @GetMapping("/count-pessoas-time-dev")
+    public ResponseEntity<Long> obterNumeroDePessoasNoTimeDeDev(HttpServletRequest request) {
         try {
-            List<Projeto> projetos = projetoRepository.findAll();
+            var idUser = (UUID) request.getAttribute("idUser");
+            Long numeroDePessoas = projetoRepository.sumQuantidadeDePessoasNoTimeDeDevByIdUser(idUser);
+            return ResponseEntity.ok(numeroDePessoas);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
-            // Agrupa os projetos por mês
-            Map<String, Long> contagemPorMes = projetos.stream()
-                    .collect(Collectors.groupingBy(
-                            projeto -> projeto.getDataCadastro().format(DateTimeFormatter.ofPattern("MM/yyyy")),
-                            Collectors.counting()
-                    ));
+    @GetMapping("/contagem-projetos-por-mes-no-ano")
+    public ResponseEntity<Map<String, Long>> obterContagemProjetosPorMesNoAno(
+            @RequestParam("ano") int ano,
+            HttpServletRequest request
+    ) {
+        try {
+            var idUser = (UUID) request.getAttribute("idUser");
+            List<Projeto> projetos = projetoRepository.findByIdUser(idUser);
 
-            // Converte o mapa para uma lista de objetos DTO
-            List<ContagemPorMesDTO> resultado = contagemPorMes.entrySet().stream()
-                    .map(entry -> new ContagemPorMesDTO(entry.getKey(), entry.getValue()))
+            // Filtrar projetos para o ano especificado
+            projetos = projetos.stream()
+                    .filter(projeto -> projeto.getDataCadastro().getYear() == ano)
                     .collect(Collectors.toList());
+
+            // Criar uma lista com os nomes dos meses
+            String[] nomesDosMeses = {
+                    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+            };
+
+            // Agrupar projetos por mês
+            Map<Month, Long> contagemPorMes = new HashMap<>();
+            for (Month month : Month.values()) {
+                long count = projetos.stream()
+                        .filter(projeto -> projeto.getDataCadastro().getMonth() == month)
+                        .count();
+                contagemPorMes.put(month, count);
+            }
+
+            // Convertendo para o formato de resposta desejado
+            Map<String, Long> resultado = contagemPorMes.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> nomesDosMeses[entry.getKey().getValue() - 1], // -1 pois Month enum começa de 1
+                            Map.Entry::getValue
+                    ));
 
             return ResponseEntity.ok(resultado);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
