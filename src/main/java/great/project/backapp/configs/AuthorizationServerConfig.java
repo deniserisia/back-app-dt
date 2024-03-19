@@ -1,5 +1,6 @@
 package great.project.backapp.configs;
 
+import great.project.backapp.configs.jwt.JwtTokenExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,18 +21,18 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private JwtTokenExtractor tokenExtractor;
+
     @Value("${security.jwt.signing-key}")
     private String sigingKey;
 
-    // gerar um token em store
-    @Bean
-    public TokenStore tokenStore(){
-        return new JwtTokenStore(accessTokenConverter());
-    }
+    @Autowired
+    private TokenStore tokenStore;
 
-    // convertendo o token em JWT
+
     @Bean
-    public JwtAccessTokenConverter accessTokenConverter(){
+    public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter tokenConverter = new JwtAccessTokenConverter();
         tokenConverter.setSigningKey(sigingKey);
         return tokenConverter;
@@ -40,7 +41,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints
-                .tokenStore(tokenStore())
+                .tokenStore(tokenStore)
                 .accessTokenConverter(accessTokenConverter())
                 .authenticationManager(authenticationManager);
     }

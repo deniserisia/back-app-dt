@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
@@ -21,4 +22,9 @@ public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
 
     @Query("SELECT SUM(p.quantidadeDePessoasNoTimeDeDev) FROM Projeto p WHERE p.idUser = :idUser")
     Long sumQuantidadeDePessoasNoTimeDeDevByIdUser(@Param("idUser") UUID idUser);
+
+    Optional<Projeto> findByNomeDoProjeto(String nomeDoProjeto);
+
+    List<Projeto> findByUsuarioId(UUID usuarioId);
+
 }

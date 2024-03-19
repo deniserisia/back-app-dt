@@ -1,13 +1,16 @@
 package great.project.backapp.rest;
 
+import great.project.backapp.configs.jwt.JwtTokenExtractor;
 import great.project.backapp.model.dto.ProjetoDTO;
 import great.project.backapp.model.entity.DividaTecnica;
 import great.project.backapp.model.entity.Projeto;
 import great.project.backapp.repository.ProjetoRepository;
+import great.project.backapp.service.ProjetoService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -34,31 +37,24 @@ public class ProjetoController {
     @Autowired
     private ProjetoRepository projetoRepository;
 
-   // @GetMapping("/todos")
-   // public List<Projeto> obterTodos(){
-    //    return projetoRepository.findAll();
-    //}
-    //@GetMapping("/obterProjetosDoUsuario")
-    //public List<Projeto> obterProjetosDoUsuario(HttpServletRequest request) {
-      //  try {
-        //    var idUser = request.getAttribute("idUser");
-          //  var projeto = projetoRepository.findByIdUser((UUID) idUser);
-          //  return projeto;
-       // } catch (Exception e) {
-        //    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao obter projetos do usuário", e);
-       // }
-    //}
+    @Autowired
+    private ProjetoService projetoService;
+
+    @Autowired
+    private JwtTokenExtractor tokenExtractor;
+
 
     @GetMapping("/todos")
-    public List<Projeto> obterTodos(HttpServletRequest request){
-        try {
-            var idUser = (UUID) request.getAttribute("idUser");
-            return projetoRepository.findByIdUser(idUser);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao obter todos os projetos do usuário", e);
+    public ResponseEntity<List<Projeto>> obterProjetosPorUsuario(HttpServletRequest request) {
+        String userIdString = tokenExtractor.getUserIdFromToken(request);
+        if (userIdString != null) {
+            UUID idUser = UUID.fromString(userIdString);
+            List<Projeto> projetos = projetoService.obterProjetosPorUsuario(idUser);
+            return ResponseEntity.ok(projetos);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<Projeto> obterProjetoPorId(@PathVariable UUID id) {
         try {

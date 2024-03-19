@@ -34,6 +34,12 @@ public class DividaTecnica {
     @JoinColumn(name = "id_projeto")
     private Projeto projeto;
 
+    @Column(name = "esforcoDoPagamento")
+    private Double esforcoDoPagamento;
+
+    @Column(name = "causaDaDT")
+    private String causaDaDT;
+
     @Column(name = "status_pagamento")
     @Enumerated(EnumType.STRING)
     private StatusDoPagamentoDT statusDoPagamentoDT;

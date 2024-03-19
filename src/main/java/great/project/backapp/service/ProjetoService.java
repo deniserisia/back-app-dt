@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ProjetoService {
@@ -17,6 +18,10 @@ public class ProjetoService {
 
     public List<Projeto> buscarProjetosPorNomeEEmpresa(String nomeDoProjeto, String empresa) {
         return projetoRepository.findByNomeDoProjetoAndEmpresa(nomeDoProjeto, empresa);
+    }
+
+    public List<Projeto> obterProjetosPorUsuario(UUID idUser) {
+        return projetoRepository.findByUsuarioId(idUser);
     }
 
 }

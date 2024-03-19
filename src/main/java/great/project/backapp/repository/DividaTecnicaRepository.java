@@ -1,5 +1,6 @@
 package great.project.backapp.repository;
 
+import great.project.backapp.model.StatusDoPagamentoDT;
 import great.project.backapp.model.TipoDeDividaTecnica;
 import great.project.backapp.model.entity.DividaTecnica;
 import great.project.backapp.model.entity.Projeto;
@@ -15,4 +16,9 @@ public interface DividaTecnicaRepository extends JpaRepository<DividaTecnica, UU
     Long countByIdUser(UUID idUser);
 
     Long countByTipoDeDividaTecnicaAndIdUser(TipoDeDividaTecnica tipo, UUID idUser);
+
+    Long countByStatusDoPagamentoDTAndIdUser(StatusDoPagamentoDT status, UUID idUser);
+
+    List<DividaTecnica> findByProjeto(Projeto projeto);
+
 }
