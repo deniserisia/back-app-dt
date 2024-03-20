@@ -1,6 +1,5 @@
 package great.project.backapp.rest;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import great.project.backapp.exception.UsuarioCadastradoException;
 import great.project.backapp.model.entity.Usuario;
 import great.project.backapp.repository.UsuarioRepository;
