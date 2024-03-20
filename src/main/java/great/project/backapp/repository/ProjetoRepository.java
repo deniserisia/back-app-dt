@@ -25,6 +25,6 @@ public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
 
     Optional<Projeto> findByNomeDoProjeto(String nomeDoProjeto);
 
-    List<Projeto> findByUsuarioId(UUID usuarioId);
+    //List<Projeto> findByUsuarioId(UUID usuarioId);
 
 }

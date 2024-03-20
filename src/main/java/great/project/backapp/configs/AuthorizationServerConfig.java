@@ -1,6 +1,6 @@
 package great.project.backapp.configs;
 
-import great.project.backapp.configs.jwt.JwtTokenExtractor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +21,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private JwtTokenExtractor tokenExtractor;
+
 
     @Value("${security.jwt.signing-key}")
     private String sigingKey;
@@ -30,6 +29,11 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private TokenStore tokenStore;
 
+    // gerar um token em store
+    @Bean
+    public TokenStore tokenStore(){
+        return new JwtTokenStore(accessTokenConverter());
+    }
 
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {

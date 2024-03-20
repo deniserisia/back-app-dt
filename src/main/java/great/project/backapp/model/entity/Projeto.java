@@ -43,9 +43,7 @@ public class Projeto {
     @JoinColumn(name = "statusDoProjeto")
     private StatusProjeto statusProjeto;
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+
 
     private UUID idUser;
 
