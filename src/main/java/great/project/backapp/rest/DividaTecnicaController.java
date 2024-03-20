@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/gerente/divida-tecnica")
 public class DividaTecnicaController {
 
@@ -29,6 +30,17 @@ public class DividaTecnicaController {
 
     @Autowired
     private ProjetoRepository projetoRepository;
+
+
+    @GetMapping("/todas")
+    public List<DividaTecnica> obterTodas(HttpServletRequest request){
+        try {
+            var idUser = (UUID) request.getAttribute("idUser");
+            return dividaTecnicaRepository.findByIdUser(idUser);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao obter todas as DT", e);
+        }
+    }
 
     @PostMapping
     public ResponseEntity salvar(@RequestBody DividaTecnica dividaTecnica, HttpServletRequest request) {
@@ -41,8 +53,6 @@ public class DividaTecnicaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao salvar a DividaTecnica.");
         }
     }
-
-
 
     @GetMapping("/count")
     public ResponseEntity<Long> obterNumeroDeDividasTecnicasDoUsuario(HttpServletRequest request) {
@@ -204,6 +214,8 @@ public class DividaTecnicaController {
                 .map( dividaTecnica -> {
                     dividaTecnica.setTipoDeDividaTecnica(dividaTecnicaAtualizada.getTipoDeDividaTecnica());
                     dividaTecnica.setDescricaoDaDT(dividaTecnicaAtualizada.getDescricaoDaDT());
+                    dividaTecnica.setCausaDaDT(dividaTecnicaAtualizada.getCausaDaDT());
+                    dividaTecnica.setEsforcoDoPagamento(dividaTecnica.getEsforcoDoPagamento());
                     dividaTecnica.setProjeto(dividaTecnicaAtualizada.getProjeto());
                     dividaTecnica.setStatusDoPagamentoDT(dividaTecnicaAtualizada.getStatusDoPagamentoDT());
                     dividaTecnica.setStatusDaFaseDeGerenciamentoDT(dividaTecnicaAtualizada.getStatusDaFaseDeGerenciamentoDT());
