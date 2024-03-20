@@ -9,9 +9,11 @@ RUN mvn clean install
 
 FROM openjdk:11-jdk-slim
 
-EXPOSE 8084
+EXPOSE 8087
 
 COPY --from=build /target/back-app-0.0.1-SNAPSHOT.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
 
