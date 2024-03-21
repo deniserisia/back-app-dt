@@ -53,4 +53,5 @@ public class DividaTecnica {
 
     private UUID idUser;
 
+
 }

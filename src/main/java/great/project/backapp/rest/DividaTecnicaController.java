@@ -16,12 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/gerente/divida-tecnica")
 public class DividaTecnicaController {
 
@@ -42,17 +43,31 @@ public class DividaTecnicaController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<DividaTecnica> getDividaTecnicaById(@PathVariable UUID id) {
+        try {
+            Optional<DividaTecnica> dividaTecnicaOptional = dividaTecnicaRepository.findById(id);
+            return dividaTecnicaOptional.map(dividaTecnica -> ResponseEntity.ok().body(dividaTecnica))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PostMapping
     public ResponseEntity salvar(@RequestBody DividaTecnica dividaTecnica, HttpServletRequest request) {
-        var idUser = request.getAttribute("idUser");
-        dividaTecnica.setIdUser((UUID) idUser);
         try {
+            var idUser = (UUID) request.getAttribute("idUser");
+            dividaTecnica.setIdUser(idUser);
+
             var dividaTecnicaSalva = this.dividaTecnicaRepository.save(dividaTecnica);
             return ResponseEntity.status(HttpStatus.OK).body(dividaTecnicaSalva);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao salvar a DividaTecnica.");
         }
     }
+
+
 
     @GetMapping("/count")
     public ResponseEntity<Long> obterNumeroDeDividasTecnicasDoUsuario(HttpServletRequest request) {

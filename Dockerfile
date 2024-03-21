@@ -1,19 +1,16 @@
 FROM ubuntu:latest AS BUILD
 
-RUN apt-get update
-RUN apt-get install openjdk-11-jdk -y
-COPY . .
+RUN apt-get update && \
+    apt-get install -y openjdk-11-jdk maven
 
-RUN apt-get install maven -y
-RUN mvn clean install
+WORKDIR /app
+
+COPY . .
 
 FROM openjdk:11-jdk-slim
 
 EXPOSE 8087
 
-COPY --from=build /target/back-app-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=BUILD /app/target/back-app-0.0.1-SNAPSHOT.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
-
-
+ENTRYPOINT ["java", "-Dspring.config.location=file:/app/application-dev.properties", "-jar", "app.jar"]
