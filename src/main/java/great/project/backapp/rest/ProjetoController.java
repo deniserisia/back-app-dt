@@ -13,15 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 
 import java.time.Month;
-import java.util.HashMap;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,12 +70,39 @@ public class ProjetoController {
 
 
     @GetMapping("/pesquisar")
-    public List<Projeto> pesquisarProjetosBD(
+    public ResponseEntity<?> pesquisarProjetosBD(
             @RequestParam(value = "nomeDoProjeto", required = false, defaultValue = "") String nomeDoProjeto,
             @RequestParam(value = "empresa", required = false, defaultValue = "") String empresa
     ) {
-        return projetoRepository.findByNomeDoProjetoAndEmpresa("%" + nomeDoProjeto + "%", empresa);
+        // Verifica se ambos os parâmetros estão vazios
+        if (nomeDoProjeto.isEmpty() && empresa.isEmpty()) {
+            // Se ambos estiverem vazios, retorne uma mensagem de erro
+            return ResponseEntity.badRequest().body("Especifique o nome do projeto ou a empresa.");
+        }
+
+        // Lista para armazenar os resultados da pesquisa
+        List<Projeto> projetos = new ArrayList<>();
+
+        // Realiza a pesquisa de acordo com os parâmetros fornecidos
+        if (!nomeDoProjeto.isEmpty() && empresa.isEmpty()) {
+            projetos = projetoRepository.findByNomeDoProjetoContainingIgnoreCase(nomeDoProjeto);
+        } else if (nomeDoProjeto.isEmpty() && !empresa.isEmpty()) {
+            projetos = projetoRepository.findByEmpresaContainingIgnoreCase(empresa);
+        } else {
+            projetos = projetoRepository.findByNomeDoProjetoContainingIgnoreCaseAndEmpresaContainingIgnoreCase(nomeDoProjeto, empresa);
+        }
+
+        // Verifica se foram encontrados projetos
+        if (!projetos.isEmpty()) {
+            // Se foram encontrados, retorna uma mensagem de sucesso e os resultados
+            return ResponseEntity.ok("A busca foi realizada com sucesso. Existe um projeto e uma empresa como você pesquisou: " + projetos);
+        } else {
+            // Se não foram encontrados, retorna uma mensagem indicando que nenhum resultado foi encontrado
+            return ResponseEntity.ok("A busca não encontrou nenhum resultado.");
+        }
     }
+
+
 
 
     @PostMapping

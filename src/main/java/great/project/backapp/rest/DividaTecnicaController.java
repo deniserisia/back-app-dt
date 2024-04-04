@@ -2,12 +2,14 @@ package great.project.backapp.rest;
 
 import great.project.backapp.model.StatusDoPagamentoDT;
 import great.project.backapp.model.TipoDeDividaTecnica;
+import great.project.backapp.model.dto.DividaTecnicaDTO;
 import great.project.backapp.model.dto.ProjetoDTO;
 import great.project.backapp.model.entity.DividaTecnica;
 import great.project.backapp.model.entity.Projeto;
 
 import great.project.backapp.repository.DividaTecnicaRepository;
 import great.project.backapp.repository.ProjetoRepository;
+import great.project.backapp.service.DividaTecnicaService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,14 +32,64 @@ public class DividaTecnicaController {
     @Autowired
     private ProjetoRepository projetoRepository;
 
+    @Autowired
+    private DividaTecnicaService dividaTecnicaService;
+
+    public DividaTecnicaController(DividaTecnicaService dividaTecnicaService) {
+        this.dividaTecnicaService = dividaTecnicaService;
+    }
+
 
     @GetMapping("/todas")
-    public List<DividaTecnica> obterTodas(HttpServletRequest request){
+    public List<DividaTecnicaDTO> obterTodas(HttpServletRequest request){
         try {
             var idUser = (UUID) request.getAttribute("idUser");
-            return dividaTecnicaRepository.findByIdUser(idUser);
+            List<DividaTecnica> dividasTecnicas = dividaTecnicaRepository.findByIdUser(idUser);
+
+            List<DividaTecnicaDTO> dividasTecnicasDTO = new ArrayList<>();
+            for (DividaTecnica dividaTecnica : dividasTecnicas) {
+                Projeto projeto = dividaTecnica.getProjeto();
+                String nomeDoProjeto = projeto != null ? projeto.getNomeDoProjeto() : null;
+
+                dividasTecnicasDTO.add(DividaTecnicaDTO.builder()
+                        .id(dividaTecnica.getId())
+                        .nomeDaDividaTecnica(dividaTecnica.getTipoDeDividaTecnica().name()) // Se nomeDaDividaTecnica for um campo separado, substitua por ele
+                        .descricaoDaDT(dividaTecnica.getDescricaoDaDT())
+                        .projetoId(projeto != null ? projeto.getId() : null)
+                        .statusDoPagamento(dividaTecnica.getStatusDoPagamentoDT())
+                        .statusDaFaseDeGerenciamentoDT(dividaTecnica.getStatusDaFaseDeGerenciamentoDT())
+                        .diaDoCadastro(dividaTecnica.getDiaDoCadastro())
+                        .idUser(dividaTecnica.getIdUser())
+                        .projeto(ProjetoDTO.builder()
+                                .nomeDoProjeto(nomeDoProjeto)
+                                // Adicione outros campos do ProjetoDTO, se necessário
+                                .build())
+                        .build());
+            }
+
+            return dividasTecnicasDTO;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao obter todas as DT", e);
+        }
+    }
+
+    @GetMapping("/esforco-do-pagamento-por-divida")
+    public ResponseEntity<Double> obterEsforcoDoPagamentoPorDivida(@RequestParam UUID id) {
+        try {
+            Optional<DividaTecnica> dividaTecnicaOptional = dividaTecnicaRepository.findById(id);
+
+            if (dividaTecnicaOptional.isPresent()) {
+                DividaTecnica dividaTecnica = dividaTecnicaOptional.get();
+
+                // Calcula o esforço de pagamento com base nos atributos da dívida técnica
+                Double esforcoDoPagamento = dividaTecnicaService.calcularEsforcoPagamento(dividaTecnica);
+
+                return ResponseEntity.ok(esforcoDoPagamento);
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Dívida técnica não encontrada!");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -54,11 +104,19 @@ public class DividaTecnicaController {
         }
     }
 
+    // No seu controller
     @PostMapping
     public ResponseEntity salvar(@RequestBody DividaTecnica dividaTecnica, HttpServletRequest request) {
         try {
             var idUser = (UUID) request.getAttribute("idUser");
             dividaTecnica.setIdUser(idUser);
+
+            // Buscar o Projeto pelo nome
+            Optional<Projeto> projetoOptional = projetoRepository.findByNomeDoProjeto(dividaTecnica.getProjeto().getNomeDoProjeto());
+            Projeto projeto = projetoOptional.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Projeto não encontrado"));
+
+            // Associar o Projeto à DividaTecnica
+            dividaTecnica.setProjeto(projeto);
 
             var dividaTecnicaSalva = this.dividaTecnicaRepository.save(dividaTecnica);
             return ResponseEntity.status(HttpStatus.OK).body(dividaTecnicaSalva);
@@ -169,56 +227,6 @@ public class DividaTecnicaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-    @GetMapping("/esforco-do-pagamento-por-projeto")
-    public ResponseEntity<Double> obterEsforcoDoPagamentoPorProjeto(@RequestParam String nomeDoProjeto) {
-        try {
-            Optional<Projeto> projetoOptional = projetoRepository.findByNomeDoProjeto(nomeDoProjeto);
-
-            if (projetoOptional.isPresent()) {
-                Projeto projeto = projetoOptional.get();
-                List<DividaTecnica> dividasTecnicasDoProjeto = dividaTecnicaRepository.findByProjeto(projeto);
-
-                // Calcular o esforço do pagamento total para o projeto
-                double esforcoDoPagamentoTotal = dividasTecnicasDoProjeto.stream()
-                        .mapToDouble(DividaTecnica::getEsforcoDoPagamento)
-                        .sum();
-
-                return ResponseEntity.ok(esforcoDoPagamentoTotal);
-            } else {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Projeto não encontrado!");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping("/dados-esforco-projeto")
-    public ResponseEntity<Map<String, Double>> obterDadosEsforcoProjeto(HttpServletRequest request) {
-        try {
-            var idUser = (UUID) request.getAttribute("idUser");
-            List<Projeto> projetosDoUsuario = projetoRepository.findByIdUser(idUser);
-
-            Map<String, Double> dadosEsforcoProjeto = new HashMap<>();
-
-            for (Projeto projeto : projetosDoUsuario) {
-                List<DividaTecnica> dividasTecnicasDoProjeto = dividaTecnicaRepository.findByProjeto(projeto);
-
-                // Calcular o esforço do pagamento total para o projeto
-                double esforcoDoPagamentoTotal = dividasTecnicasDoProjeto.stream()
-                        .mapToDouble(DividaTecnica::getEsforcoDoPagamento)
-                        .sum();
-
-                dadosEsforcoProjeto.put(projeto.getNomeDoProjeto(), esforcoDoPagamentoTotal);
-            }
-
-            return ResponseEntity.ok(dadosEsforcoProjeto);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-
 
 
     @PutMapping("/{id}")

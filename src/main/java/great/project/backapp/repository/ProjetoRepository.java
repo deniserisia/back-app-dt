@@ -15,6 +15,8 @@ public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
 
     Long countByIdUser(UUID idUser);
 
+    Optional<Projeto> findByNomeDoProjetoAndIdUser(String nomeDoProjeto, UUID idUser);
+
     @Query("select c from Projeto c " +
             "where upper(c.nomeDoProjeto) like upper(:nomeDoProjeto) and upper(c.empresa) like upper(:empresa)")
     List<Projeto> findByNomeDoProjetoAndEmpresa(
@@ -25,6 +27,11 @@ public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
 
     Optional<Projeto> findByNomeDoProjeto(String nomeDoProjeto);
 
-    //List<Projeto> findByUsuarioId(UUID usuarioId);
+    List<Projeto> findByNomeDoProjetoContainingIgnoreCase(String nomeDoProjeto);
+
+    List<Projeto> findByEmpresaContainingIgnoreCase(String empresa);
+
+    List<Projeto> findByNomeDoProjetoContainingIgnoreCaseAndEmpresaContainingIgnoreCase(String nomeDoProjeto, String empresa);
+
 
 }

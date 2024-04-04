@@ -40,6 +40,15 @@ public class DividaTecnica {
     @Column(name = "causaDaDT")
     private String causaDaDT;
 
+    @Column(name = "resultadoDoesforcoDoPagammento")
+    private Double resultadoDoesforcoDoPagammento;
+
+    @Column(name = "quantidadeDePessoas")
+    private Integer quantidadeDePessoas;
+
+    @Column(name = "valorPorHoraDeTrabalho")
+    private Double valorPorHoraDeTrabalho;
+
     @Column(name = "status_pagamento")
     @Enumerated(EnumType.STRING)
     private StatusDoPagamentoDT statusDoPagamentoDT;

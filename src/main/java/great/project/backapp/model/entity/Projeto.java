@@ -44,7 +44,6 @@ public class Projeto {
     private StatusProjeto statusProjeto;
 
 
-
     private UUID idUser;
 
     @Column(name = "data_cadastro", updatable = false)
