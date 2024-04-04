@@ -15,6 +15,8 @@ public interface DividaTecnicaRepository extends JpaRepository<DividaTecnica, UU
 
     Long countByIdUser(UUID idUser);
 
+    List<DividaTecnica> findByProjetoId(UUID id);
+
 
     Long countByTipoDeDividaTecnicaAndIdUser(TipoDeDividaTecnica tipo, UUID idUser);
 

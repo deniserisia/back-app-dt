@@ -74,17 +74,18 @@ public class DividaTecnicaController {
     }
 
     @GetMapping("/esforco-do-pagamento-por-divida")
-    public ResponseEntity<Double> obterEsforcoDoPagamentoPorDivida(@RequestParam UUID id) {
+    public ResponseEntity<List<DividaTecnica>> obterEsforcoDoPagamentoPorDivida(@RequestParam UUID id) {
         try {
             Optional<DividaTecnica> dividaTecnicaOptional = dividaTecnicaRepository.findById(id);
 
             if (dividaTecnicaOptional.isPresent()) {
                 DividaTecnica dividaTecnica = dividaTecnicaOptional.get();
 
-                // Calcula o esforço de pagamento com base nos atributos da dívida técnica
-                Double esforcoDoPagamento = dividaTecnicaService.calcularEsforcoPagamento(dividaTecnica);
+                // Crie uma lista contendo apenas a divida técnica encontrada
+                List<DividaTecnica> dividasTecnicas = new ArrayList<>();
+                dividasTecnicas.add(dividaTecnica);
 
-                return ResponseEntity.ok(esforcoDoPagamento);
+                return ResponseEntity.ok(dividasTecnicas);
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Dívida técnica não encontrada!");
             }
@@ -92,6 +93,14 @@ public class DividaTecnicaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+    @GetMapping("/dividas-tecnicas-do-projeto")
+    public ResponseEntity<List<DividaTecnica>> obterDividasTecnicasDoProjeto(@RequestParam UUID id) {
+        List<DividaTecnica> dividasTecnicas = dividaTecnicaService.obterDividasTecnicasDoProjeto(id);
+        return ResponseEntity.ok(dividasTecnicas);
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<DividaTecnica> getDividaTecnicaById(@PathVariable UUID id) {
