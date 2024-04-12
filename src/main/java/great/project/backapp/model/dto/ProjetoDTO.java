@@ -12,6 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class ProjetoDTO {
-    private UUID id;
+    private Long id;
     private String nomeDoProjeto;
 }

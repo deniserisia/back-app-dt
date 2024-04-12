@@ -14,27 +14,27 @@ import java.util.UUID;
 @Builder
 public class DividaTecnicaDTO {
 
-    private UUID id;
+    private Long id;
     private String nomeDaDividaTecnica;
     private String descricaoDaDT;
-    private UUID projetoId;
+    private Long projetoId;
     private StatusDoPagamentoDT statusDoPagamento;
     private StatusDaFaseDeGerenciamentoDT statusDaFaseDeGerenciamentoDT;
     private LocalDateTime diaDoCadastro;
-    private UUID idUser;
+    private Long idUser;
 
     private ProjetoDTO projeto;
 
     @Builder
     public DividaTecnicaDTO(
-            UUID id,
+            Long id,
             String nomeDaDividaTecnica,
             String descricaoDaDT,
-            UUID projetoId,
+            Long projetoId,
             StatusDoPagamentoDT statusDoPagamento,
             StatusDaFaseDeGerenciamentoDT statusDaFaseDeGerenciamentoDT,
             LocalDateTime diaDoCadastro,
-            UUID idUser,
+            Long idUser,
             ProjetoDTO projeto
     ) {
         this.id = id;

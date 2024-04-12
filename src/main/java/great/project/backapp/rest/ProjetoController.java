@@ -1,8 +1,6 @@
 package great.project.backapp.rest;
 
-
 import great.project.backapp.model.dto.ProjetoDTO;
-import great.project.backapp.model.entity.DividaTecnica;
 import great.project.backapp.model.entity.Projeto;
 import great.project.backapp.repository.ProjetoRepository;
 import lombok.var;
@@ -11,14 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.time.format.DateTimeFormatter;
-
 import java.time.Month;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,18 +26,27 @@ public class ProjetoController {
     private ProjetoRepository projetoRepository;
 
 
-    @GetMapping("/todos")
-    public List<Projeto> obterTodos(HttpServletRequest request){
+    @GetMapping("/todos/{idUser}")
+    public List<Projeto> obterTodos(@PathVariable(name = "idUser") String idUser) {
         try {
-            var idUser = (UUID) request.getAttribute("idUser");
-            return projetoRepository.findByIdUser(idUser);
+
+            return projetoRepository.findByIdUser(Long.valueOf(idUser));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao obter todos os projetos do usuário", e);
+        }
+    }
+
+    @GetMapping("/todosprojetos/{idUser}")
+    public List<Projeto> obterTodosDoUsuario(@PathVariable(name = "idUser") String idUser){
+        try {
+            return projetoRepository.findByIdUser(Long.valueOf(idUser));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao obter todos os projetos do usuário", e);
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Projeto> obterProjetoPorId(@PathVariable UUID id) {
+    public ResponseEntity<Projeto> obterProjetoPorId(@PathVariable Long id) {
         try {
             Optional<Projeto> projetoOptional = projetoRepository.findById(id);
             return projetoOptional.map(projeto -> ResponseEntity.ok().body(projeto))
@@ -106,19 +109,19 @@ public class ProjetoController {
 
 
     @PostMapping
-    public ResponseEntity salvar(@RequestBody Projeto projeto, HttpServletRequest request) {
-        var idUser = request.getAttribute("idUser");
-        projeto.setIdUser((UUID) idUser);
+    public ResponseEntity salvar(@RequestBody Projeto projeto) {
+        //Long idUser = (Long) request.getAttribute("idUser");
+        //projeto.setIdUser(idUser);
         var project = this.projetoRepository.save(projeto);
         return ResponseEntity.status(HttpStatus.OK).body(project);
     }
 
 
-    @GetMapping("/count")
-    public ResponseEntity<Long> obterNumeroDeProjetosDoUsuario(HttpServletRequest request) {
+    @GetMapping("/count/{idUser}")
+    public ResponseEntity<Long> obterNumeroDeProjetosDoUsuario(@PathVariable(name = "idUser") String idUser) {
         try {
-            var idUser = request.getAttribute("idUser");
-            Long numeroDeProjetos = projetoRepository.countByIdUser((UUID) idUser);
+
+            Long numeroDeProjetos = projetoRepository.countByIdUser(Long.valueOf(idUser));
             return ResponseEntity.ok(numeroDeProjetos);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -130,7 +133,7 @@ public class ProjetoController {
     @GetMapping("/count-pessoas-time-dev")
     public ResponseEntity<Long> obterNumeroDePessoasNoTimeDeDev(HttpServletRequest request) {
         try {
-            var idUser = (UUID) request.getAttribute("idUser");
+            Long idUser = (Long) request.getAttribute("idUser");
             Long numeroDePessoas = projetoRepository.sumQuantidadeDePessoasNoTimeDeDevByIdUser(idUser);
             return ResponseEntity.ok(numeroDePessoas);
         } catch (Exception e) {
@@ -138,18 +141,20 @@ public class ProjetoController {
         }
     }
 
-    @GetMapping("/contagem-projetos-por-mes-no-ano")
+    @GetMapping("/contagem-projetos-por-mes-no-ano/{ano}/{idUser}" )
     public ResponseEntity<Map<String, Long>> obterContagemProjetosPorMesNoAno(
-            @RequestParam("ano") int ano,
-            HttpServletRequest request
+            @PathVariable(name = "ano") Long ano,
+            @PathVariable(name="idUser") String idUser
     ) {
         try {
-            var idUser = (UUID) request.getAttribute("idUser");
-            List<Projeto> projetos = projetoRepository.findByIdUser(idUser);
+
+            List<Projeto> projetos = projetoRepository.findByIdUser(Long.valueOf(idUser));
 
             // Filtrar projetos para o ano especificado
             projetos = projetos.stream()
-                    .filter(projeto -> projeto.getDataCadastro().getYear() == ano)
+                    .filter(projeto -> {
+                        return projeto.getDataCadastro().getYear() == ano;
+                    })
                     .collect(Collectors.toList());
 
             // Criar uma lista com os nomes dos meses
@@ -184,7 +189,7 @@ public class ProjetoController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletarProjeto( @PathVariable UUID id ){
+    public void deletarProjeto( @PathVariable Long id ){
         projetoRepository
                 .findById(id)
                 .map( projeto -> {
@@ -196,7 +201,8 @@ public class ProjetoController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void atualizarProjeto( @PathVariable UUID id, @RequestBody Projeto projetoAtualizado, HttpServletRequest request ) {
+
+    public void atualizarProjeto( @PathVariable(name = "id") Long id, @RequestBody Projeto projetoAtualizado ) {
         projetoRepository
                 .findById(id)
                 .map( projeto -> {
