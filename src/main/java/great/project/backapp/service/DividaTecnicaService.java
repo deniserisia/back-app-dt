@@ -18,7 +18,7 @@ public class DividaTecnicaService {
     @Autowired
     private DividaTecnicaRepository dividaTecnicaRepository;
 
-    public List<DividaTecnica> obterDividasTecnicasDoProjeto(UUID id) {
+    public List<DividaTecnica> obterDividasTecnicasDoProjeto(Long id) {
         return dividaTecnicaRepository.findByProjetoId(id);
     }
 
@@ -26,7 +26,7 @@ public class DividaTecnicaService {
     public void cadastrarDividaTecnica(String descricaoDaDT, Projeto projeto, Double esforcoDoPagamento,
                                        String causaDaDT, Double valorPorHoraDeTrabalho, Integer quantidadeDePessoas,
                                        StatusDoPagamentoDT statusDoPagamentoDT, StatusDaFaseDeGerenciamentoDT statusDaFaseDeGerenciamentoDT,
-                                       LocalDateTime diaDoCadastro, UUID idUser) {
+                                       LocalDateTime diaDoCadastro, Long idUser) {
         DividaTecnica dividaTecnica = DividaTecnica.builder()
                 .descricaoDaDT(descricaoDaDT)
                 .projeto(projeto)

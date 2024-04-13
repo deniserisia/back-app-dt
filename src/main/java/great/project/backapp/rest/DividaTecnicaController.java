@@ -6,17 +6,15 @@ import great.project.backapp.model.dto.DividaTecnicaDTO;
 import great.project.backapp.model.dto.ProjetoDTO;
 import great.project.backapp.model.entity.DividaTecnica;
 import great.project.backapp.model.entity.Projeto;
-
 import great.project.backapp.repository.DividaTecnicaRepository;
 import great.project.backapp.repository.ProjetoRepository;
 import great.project.backapp.service.DividaTecnicaService;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.JdkIdGenerator;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import javax.servlet.http.HttpServletRequest;
 import java.time.Month;
 import java.util.*;
@@ -25,26 +23,22 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/gerente/divida-tecnica")
 public class DividaTecnicaController {
-
     @Autowired
     private DividaTecnicaRepository dividaTecnicaRepository;
-
     @Autowired
     private ProjetoRepository projetoRepository;
-
     @Autowired
     private DividaTecnicaService dividaTecnicaService;
-
     public DividaTecnicaController(DividaTecnicaService dividaTecnicaService) {
         this.dividaTecnicaService = dividaTecnicaService;
     }
 
 
-    @GetMapping("/todas")
-    public List<DividaTecnicaDTO> obterTodas(HttpServletRequest request){
+    @GetMapping("/todas/{idUser}")
+    public List<DividaTecnicaDTO> obterTodas(@PathVariable(name = "idUser") String idUser){
         try {
-            var idUser = (UUID) request.getAttribute("idUser");
-            List<DividaTecnica> dividasTecnicas = dividaTecnicaRepository.findByIdUser(idUser);
+          // Long idUser = (Long) request.getAttribute("idUser");
+            List<DividaTecnica> dividasTecnicas = dividaTecnicaRepository.findByIdUser(Long.valueOf(idUser));
 
             List<DividaTecnicaDTO> dividasTecnicasDTO = new ArrayList<>();
             for (DividaTecnica dividaTecnica : dividasTecnicas) {
@@ -72,11 +66,11 @@ public class DividaTecnicaController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao obter todas as DT", e);
         }
     }
-
-    @GetMapping("/esforco-do-pagamento-por-divida")
-    public ResponseEntity<List<DividaTecnica>> obterEsforcoDoPagamentoPorDivida(@RequestParam UUID id) {
+  //
+    @GetMapping("/esforco-do-pagamento-por-divida/{id}")
+    public ResponseEntity<List<DividaTecnica>> obterEsforcoDoPagamentoPorDivida(@PathVariable(name = "id") String id) {
         try {
-            Optional<DividaTecnica> dividaTecnicaOptional = dividaTecnicaRepository.findById(id);
+            Optional<DividaTecnica> dividaTecnicaOptional = dividaTecnicaRepository.findById(Long.valueOf(id));
 
             if (dividaTecnicaOptional.isPresent()) {
                 DividaTecnica dividaTecnica = dividaTecnicaOptional.get();
@@ -95,17 +89,21 @@ public class DividaTecnicaController {
     }
 
 
-    @GetMapping("/dividas-tecnicas-do-projeto")
-    public ResponseEntity<List<DividaTecnica>> obterDividasTecnicasDoProjeto(@RequestParam UUID id) {
-        List<DividaTecnica> dividasTecnicas = dividaTecnicaService.obterDividasTecnicasDoProjeto(id);
-        return ResponseEntity.ok(dividasTecnicas);
+    @GetMapping("/dividas-tecnicas-do-projeto/{id}")
+    public ArrayList<DividaTecnica> obterDividasTecnicasDoProjeto(@PathVariable(name = "id") String id) {
+        ArrayList<DividaTecnica> list= (ArrayList<DividaTecnica>) dividaTecnicaService.obterDividasTecnicasDoProjeto(Long.valueOf(id));
+        return list;
     }
+//    public ResponseEntity<List<DividaTecnica>> obterDividasTecnicasDoProjeto(@PathVariable(name = "id") String id) {
+//        List<DividaTecnica> dividasTecnicas = dividaTecnicaService.obterDividasTecnicasDoProjeto(Long.valueOf(id));
+//        return ResponseEntity.ok(dividasTecnicas);
+//    }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<DividaTecnica> getDividaTecnicaById(@PathVariable UUID id) {
+    public ResponseEntity<DividaTecnica> getDividaTecnicaById(@PathVariable(name = "id") String id) {
         try {
-            Optional<DividaTecnica> dividaTecnicaOptional = dividaTecnicaRepository.findById(id);
+            Optional<DividaTecnica> dividaTecnicaOptional = dividaTecnicaRepository.findById(Long.valueOf(id));
             return dividaTecnicaOptional.map(dividaTecnica -> ResponseEntity.ok().body(dividaTecnica))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
@@ -117,18 +115,23 @@ public class DividaTecnicaController {
     @PostMapping
     public ResponseEntity salvar(@RequestBody DividaTecnica dividaTecnica, HttpServletRequest request) {
         try {
-            var idUser = (UUID) request.getAttribute("idUser");
-            dividaTecnica.setIdUser(idUser);
+          //  Long idUser = dividaTecnica.getIdUser(); //(Long) request.getAttribute("idUser");
+          //  dividaTecnica.setIdUser(idUser);
 
-            // Buscar o Projeto pelo nome
-            Optional<Projeto> projetoOptional = projetoRepository.findByNomeDoProjeto(dividaTecnica.getProjeto().getNomeDoProjeto());
+            // Buscar o Projeto pelo no
+            Optional<Projeto> projetoOptional = projetoRepository.findById(dividaTecnica.getId_projeto());
             Projeto projeto = projetoOptional.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Projeto não encontrado"));
+
+            projeto.getDividasTecnicas().add(dividaTecnica);
 
             // Associar o Projeto à DividaTecnica
             dividaTecnica.setProjeto(projeto);
+            dividaTecnica.setId_projeto(projeto.getId());
+            dividaTecnica.setResultadoDoesforcoDoPagammento (dividaTecnica.getValorPorHoraDeTrabalho()* dividaTecnica.getQuantidadeDePessoas());
+            projetoRepository.save(projeto);
 
-            var dividaTecnicaSalva = this.dividaTecnicaRepository.save(dividaTecnica);
-            return ResponseEntity.status(HttpStatus.OK).body(dividaTecnicaSalva);
+            //var dividaTecnicaSalva = this.dividaTecnicaRepository.save(dividaTecnica);
+            return ResponseEntity.status(HttpStatus.OK).body(dividaTecnica);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao salvar a DividaTecnica.");
         }
@@ -136,11 +139,11 @@ public class DividaTecnicaController {
 
 
 
-    @GetMapping("/count")
-    public ResponseEntity<Long> obterNumeroDeDividasTecnicasDoUsuario(HttpServletRequest request) {
+    @GetMapping("/count/{idUser}")
+    public ResponseEntity<Long> obterNumeroDeDividasTecnicasDoUsuario(@PathVariable(name = "idUser") String idUser) {
         try {
-            var idUser = (UUID) request.getAttribute("idUser");
-            Long numeroDeDT = dividaTecnicaRepository.countByIdUser(idUser);
+
+            Long numeroDeDT = dividaTecnicaRepository.countByIdUser(Long.valueOf(idUser));
             return ResponseEntity.ok(numeroDeDT);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -149,7 +152,7 @@ public class DividaTecnicaController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletarDT( @PathVariable UUID id ){
+    public void deletarDT( @PathVariable Long id ){
         dividaTecnicaRepository
                 .findById(id)
                 .map( dividaTecnica -> {
@@ -159,14 +162,14 @@ public class DividaTecnicaController {
                 .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "DT não encontrado!") );
     }
 
-    @GetMapping("/contagem-dividas-tecnicas-por-mes-no-ano")
+    @GetMapping("/contagem-dividas-tecnicas-por-mes-no-ano/{ano}/{idUser}")
     public ResponseEntity<Map<String, Long>> obterContagemDividasTecnicasPorMesNoAno(
-            @RequestParam("ano") int ano,
-            HttpServletRequest request
+            @PathVariable("ano") int ano,
+            @PathVariable(name = "idUser") String idUser
     ) {
         try {
-            var idUser = (UUID) request.getAttribute("idUser");
-            List<DividaTecnica> dividasTecnicas = dividaTecnicaRepository.findByIdUser(idUser);
+
+            List<DividaTecnica> dividasTecnicas = dividaTecnicaRepository.findByIdUser(Long.valueOf(idUser));
 
             // Filtrar dívidas técnicas para o ano especificado
             dividasTecnicas = dividasTecnicas.stream()
@@ -202,14 +205,14 @@ public class DividaTecnicaController {
     }
 
 
-    @GetMapping("/contagem-por-tipo")
-    public ResponseEntity<Map<String, Long>> obterContagemDividasPorTipo(HttpServletRequest request) {
+    @GetMapping("/contagem-por-tipo/{idUser}")
+    public ResponseEntity<Map<String, Long>> obterContagemDividasPorTipo(@PathVariable(name = "idUser") String idUser) {
         try {
-            var idUser = (UUID) request.getAttribute("idUser");
+            //Long idUser = (Long) request.getAttribute("idUser");
             Map<String, Long> contagemPorTipo = new HashMap<>();
 
             for (TipoDeDividaTecnica tipo : TipoDeDividaTecnica.values()) {
-                Long contagem = dividaTecnicaRepository.countByTipoDeDividaTecnicaAndIdUser(tipo, idUser);
+                Long contagem = dividaTecnicaRepository.countByTipoDeDividaTecnicaAndIdUser(tipo, Long.valueOf(idUser));
                 contagemPorTipo.put(tipo.name(), contagem);
             }
 
@@ -219,15 +222,15 @@ public class DividaTecnicaController {
         }
     }
 
-    @GetMapping("/status-pagamento")
-    public ResponseEntity<Map<String, Long>> obterStatusPagamentoDasDividasTecnicas(HttpServletRequest request) {
+    @GetMapping("/status-pagamento/{idUser}")
+    public ResponseEntity<Map<String, Long>> obterStatusPagamentoDasDividasTecnicas(@PathVariable(name = "idUser") String idUser) {
         try {
 
-            var idUser = (UUID) request.getAttribute("idUser");
+           // Long idUser = (Long) request.getAttribute("idUser");
             Map<String, Long> statusPagamentoDT = new HashMap<>();
 
             for (StatusDoPagamentoDT status : StatusDoPagamentoDT.values()) {
-                Long statusDI = dividaTecnicaRepository.countByStatusDoPagamentoDTAndIdUser(status, idUser);
+                Long statusDI = dividaTecnicaRepository.countByStatusDoPagamentoDTAndIdUser(status, Long.valueOf(idUser));
                 statusPagamentoDT.put(status.name(), statusDI);
             }
 
@@ -240,7 +243,10 @@ public class DividaTecnicaController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void  atualizarDividaTecnica( @PathVariable UUID id, @RequestBody DividaTecnica dividaTecnicaAtualizada, HttpServletRequest request ) {
+    public void  atualizarDividaTecnica(@PathVariable(name = "id") Long id, @RequestBody DividaTecnica dividaTecnicaAtualizada, HttpServletRequest request ) {
+
+        Long idprojeto=dividaTecnicaAtualizada.getId_projeto();
+
         dividaTecnicaRepository
                 .findById(id)
                 .map( dividaTecnica -> {
@@ -248,9 +254,12 @@ public class DividaTecnicaController {
                     dividaTecnica.setDescricaoDaDT(dividaTecnicaAtualizada.getDescricaoDaDT());
                     dividaTecnica.setCausaDaDT(dividaTecnicaAtualizada.getCausaDaDT());
                     dividaTecnica.setEsforcoDoPagamento(dividaTecnica.getEsforcoDoPagamento());
-                    dividaTecnica.setProjeto(dividaTecnicaAtualizada.getProjeto());
                     dividaTecnica.setStatusDoPagamentoDT(dividaTecnicaAtualizada.getStatusDoPagamentoDT());
                     dividaTecnica.setStatusDaFaseDeGerenciamentoDT(dividaTecnicaAtualizada.getStatusDaFaseDeGerenciamentoDT());
+                    dividaTecnica.setQuantidadeDePessoas(dividaTecnicaAtualizada.getQuantidadeDePessoas());
+                    dividaTecnica.setValorPorHoraDeTrabalho(dividaTecnicaAtualizada.getValorPorHoraDeTrabalho());
+                    dividaTecnica.setResultadoDoesforcoDoPagammento(dividaTecnicaAtualizada.getValorPorHoraDeTrabalho()* dividaTecnica.getQuantidadeDePessoas());
+                    dividaTecnica.setId_projeto(idprojeto);
                     return dividaTecnicaRepository.save(dividaTecnica);
                 })
                 .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dívida Técnica não encontrada!") );
