@@ -1,5 +1,6 @@
 package great.project.backapp.rest;
 
+import great.project.backapp.model.StatusProjeto;
 import great.project.backapp.model.dto.ProjetoDTO;
 import great.project.backapp.model.entity.Projeto;
 import great.project.backapp.repository.ProjetoRepository;
@@ -51,6 +52,31 @@ public class ProjetoController {
             Optional<Projeto> projetoOptional = projetoRepository.findById(id);
             return projetoOptional.map(projeto -> ResponseEntity.ok().body(projeto))
                     .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Endpoint para obter o status do projeto
+    @GetMapping("/status/{idUser}")
+    public ResponseEntity<Map<String, Long>> obterStatusDoProjeto(@PathVariable(name = "idUser") String idUser) {
+        try {
+            List<Projeto> projetos = projetoRepository.findByIdUser(Long.valueOf(idUser));
+
+            // Contagem dos projetos por status
+            Map<StatusProjeto, Long> contagemPorStatus = new HashMap<>();
+            for (Projeto projeto : projetos) {
+                StatusProjeto statusProjeto = projeto.getStatusProjeto();
+                contagemPorStatus.put(statusProjeto, contagemPorStatus.getOrDefault(statusProjeto, 0L) + 1);
+            }
+
+            // Convertendo para o formato desejado para o gráfico
+            Map<String, Long> resultado = new HashMap<>();
+            for (Map.Entry<StatusProjeto, Long> entry : contagemPorStatus.entrySet()) {
+                resultado.put(entry.getKey().name(), entry.getValue());
+            }
+
+            return ResponseEntity.ok(resultado);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
