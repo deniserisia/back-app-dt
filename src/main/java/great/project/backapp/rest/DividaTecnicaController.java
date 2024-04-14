@@ -1,5 +1,6 @@
 package great.project.backapp.rest;
 
+import great.project.backapp.model.StatusDaFaseDeGerenciamentoDT;
 import great.project.backapp.model.StatusDoPagamentoDT;
 import great.project.backapp.model.TipoDeDividaTecnica;
 import great.project.backapp.model.dto.DividaTecnicaDTO;
@@ -33,6 +34,24 @@ public class DividaTecnicaController {
         this.dividaTecnicaService = dividaTecnicaService;
     }
 
+    @GetMapping("/status-gerenciamento/{idUser}")
+    public ResponseEntity<Map<String, Long>> obterStatusGerenciamentoDividasTecnicas(@PathVariable(name = "idUser") String idUser) {
+        try {
+            List<DividaTecnica> dividasTecnicas = dividaTecnicaRepository.findByIdUser(Long.valueOf(idUser));
+
+            // Contagem de status de gerenciamento
+            Map<StatusDaFaseDeGerenciamentoDT, Long> contagemStatus = dividasTecnicas.stream()
+                    .collect(Collectors.groupingBy(DividaTecnica::getStatusDaFaseDeGerenciamentoDT, Collectors.counting()));
+
+            // Converter para o formato desejado
+            Map<String, Long> resultado = new HashMap<>();
+            contagemStatus.forEach((status, count) -> resultado.put(status.name(), count));
+
+            return ResponseEntity.ok(resultado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @GetMapping("/todas/{idUser}")
     public List<DividaTecnicaDTO> obterTodas(@PathVariable(name = "idUser") String idUser){
@@ -225,8 +244,6 @@ public class DividaTecnicaController {
     @GetMapping("/status-pagamento/{idUser}")
     public ResponseEntity<Map<String, Long>> obterStatusPagamentoDasDividasTecnicas(@PathVariable(name = "idUser") String idUser) {
         try {
-
-           // Long idUser = (Long) request.getAttribute("idUser");
             Map<String, Long> statusPagamentoDT = new HashMap<>();
 
             for (StatusDoPagamentoDT status : StatusDoPagamentoDT.values()) {
