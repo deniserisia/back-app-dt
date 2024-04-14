@@ -37,17 +37,13 @@ public class DividaTecnicaController {
     @GetMapping("/status-gerenciamento/{idUser}")
     public ResponseEntity<Map<String, Long>> obterStatusGerenciamentoDividasTecnicas(@PathVariable(name = "idUser") String idUser) {
         try {
-            List<DividaTecnica> dividasTecnicas = dividaTecnicaRepository.findByIdUser(Long.valueOf(idUser));
+            Map<String, Long> statusFaseGerenDT = new HashMap<>();
 
-            // Contagem de status de gerenciamento
-            Map<StatusDaFaseDeGerenciamentoDT, Long> contagemStatus = dividasTecnicas.stream()
-                    .collect(Collectors.groupingBy(DividaTecnica::getStatusDaFaseDeGerenciamentoDT, Collectors.counting()));
-
-            // Converter para o formato desejado
-            Map<String, Long> resultado = new HashMap<>();
-            contagemStatus.forEach((status, count) -> resultado.put(status.name(), count));
-
-            return ResponseEntity.ok(resultado);
+            for (StatusDaFaseDeGerenciamentoDT statusGerenciamento : StatusDaFaseDeGerenciamentoDT.values()) {
+                Long statusDI = dividaTecnicaRepository.countByStatusDaFaseDeGerenciamentoDTAndIdUser(statusGerenciamento, Long.valueOf(idUser));
+                statusFaseGerenDT.put(statusGerenciamento.name(), statusDI);
+            }
+            return ResponseEntity.ok(statusFaseGerenDT);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
