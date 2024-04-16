@@ -3,28 +3,31 @@ package great.project.backapp.model.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import great.project.backapp.model.StatusDoPagamentoDT;
 import great.project.backapp.model.StatusProjeto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 @Entity(name ="Projeto")
-public class Projeto {
 
+public class Projeto implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "UUID")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @Column(unique = true, name = "nomeDoProjeto")
     private String nomeDoProjeto;
@@ -43,8 +46,8 @@ public class Projeto {
     @JoinColumn(name = "statusDoProjeto")
     private StatusProjeto statusProjeto;
 
-
-    private UUID idUser;
+    @Column(name = "id_user")
+    private Long idUser;
 
     @Column(name = "data_cadastro", updatable = false)
     @JsonFormat(pattern = "dd/MM/yyyy")
@@ -56,6 +59,13 @@ public class Projeto {
     }
 
     // Relação um para muitos com DividaTecnica
-    //@OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL)
-    //private List<DividaTecnica> dividasTecnicas;
+
+    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<DividaTecnica> dividasTecnicas= new ArrayList<>();
+
+
+    public Projeto () {
+    }
+
 }

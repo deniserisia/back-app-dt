@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
+public interface ProjetoRepository extends JpaRepository<Projeto, Long> {
+    @Query("select p from Projeto p where p.idUser=:idUser")
+    List<Projeto> findByIdUser(@Param("idUser") Long idUser);
 
-    List<Projeto> findByIdUser(UUID idUser);
+    Long countByIdUser(Long idUser);
 
-    Long countByIdUser(UUID idUser);
-
-    Optional<Projeto> findByNomeDoProjetoAndIdUser(String nomeDoProjeto, UUID idUser);
+    Optional<Projeto> findByNomeDoProjetoAndIdUser(String nomeDoProjeto, Long idUser);
 
     @Query("select c from Projeto c " +
             "where upper(c.nomeDoProjeto) like upper(:nomeDoProjeto) and upper(c.empresa) like upper(:empresa)")
@@ -23,7 +23,7 @@ public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
             @Param("nomeDoProjeto") String nomeDoProjeto, @Param("empresa") String empresa);
 
     @Query("SELECT SUM(p.quantidadeDePessoasNoTimeDeDev) FROM Projeto p WHERE p.idUser = :idUser")
-    Long sumQuantidadeDePessoasNoTimeDeDevByIdUser(@Param("idUser") UUID idUser);
+    Long sumQuantidadeDePessoasNoTimeDeDevByIdUser(@Param("idUser") Long idUser);
 
     Optional<Projeto> findByNomeDoProjeto(String nomeDoProjeto);
 
