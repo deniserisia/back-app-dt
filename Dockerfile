@@ -4,19 +4,16 @@ RUN apt-get update
 
 RUN apt-get install openjdk-18-jdk -y
 
-COPY . .
-
 RUN apt-get install maven -y
 
-RUN mvn clean compile install site
+RUN mvn clean install
 
 FROM openjdk:18-jdk-slim
 
-ENTRYPOINT ["java","-jar","/app.jar"]
-EXPOSE 5432
+COPY . .
+
 EXPOSE 8084
 
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
+COPY --from=BUILD /app/target/back-app-0.0.1-SNAPSHOT.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
