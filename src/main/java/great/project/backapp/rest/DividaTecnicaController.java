@@ -110,18 +110,16 @@ public class DividaTecnicaController {
         ArrayList<DividaTecnica> list= (ArrayList<DividaTecnica>) dividaTecnicaService.obterDividasTecnicasDoProjeto(Long.valueOf(id));
         return list;
     }
-//    public ResponseEntity<List<DividaTecnica>> obterDividasTecnicasDoProjeto(@PathVariable(name = "id") String id) {
-//        List<DividaTecnica> dividasTecnicas = dividaTecnicaService.obterDividasTecnicasDoProjeto(Long.valueOf(id));
-//        return ResponseEntity.ok(dividasTecnicas);
-//    }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<DividaTecnica> getDividaTecnicaById(@PathVariable(name = "id") String id) {
         try {
             Optional<DividaTecnica> dividaTecnicaOptional = dividaTecnicaRepository.findById(Long.valueOf(id));
-            return dividaTecnicaOptional.map(dividaTecnica -> ResponseEntity.ok().body(dividaTecnica))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            DividaTecnica dividaTecnica = new DividaTecnica();
+            if (dividaTecnicaOptional.isPresent()){
+                dividaTecnica=dividaTecnicaOptional.get();
+            }
+            return ResponseEntity.ok(dividaTecnica);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
