@@ -7,6 +7,7 @@ import great.project.backapp.model.dto.DividaTecnicaDTO;
 import great.project.backapp.model.dto.ProjetoDTO;
 import great.project.backapp.model.entity.DividaTecnica;
 import great.project.backapp.model.entity.Projeto;
+import lombok.var;
 import great.project.backapp.repository.DividaTecnicaRepository;
 import great.project.backapp.repository.ProjetoRepository;
 import great.project.backapp.service.DividaTecnicaService;
