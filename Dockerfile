@@ -6,7 +6,11 @@ RUN apt-get install openjdk-18-jdk -y
 
 RUN apt-get install maven -y
 
-RUN mvn clean install
+RUN mvn clean
+
+RUN mvn compile
+
+RUN mvn install
 
 FROM openjdk:18-jdk-slim
 
