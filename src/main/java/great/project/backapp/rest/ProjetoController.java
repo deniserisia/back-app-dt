@@ -4,9 +4,9 @@ import great.project.backapp.model.StatusProjeto;
 import great.project.backapp.model.dto.ProjetoDTO;
 import great.project.backapp.model.entity.Projeto;
 import great.project.backapp.repository.ProjetoRepository;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import lombok.var;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -99,14 +99,14 @@ public class ProjetoController {
 
 
     @GetMapping("/pesquisar")
-    public ResponseEntity<?> pesquisarProjetosBD(
+    public List<Projeto> pesquisarProjetosBD(
             @RequestParam(value = "nomeDoProjeto", required = false, defaultValue = "") String nomeDoProjeto,
             @RequestParam(value = "empresa", required = false, defaultValue = "") String empresa
     ) {
         // Verifica se ambos os parâmetros estão vazios
         if (nomeDoProjeto.isEmpty() && empresa.isEmpty()) {
             // Se ambos estiverem vazios, retorne uma mensagem de erro
-            return ResponseEntity.badRequest().body("Especifique o nome do projeto ou a empresa.");
+            return (List<Projeto>) ResponseEntity.badRequest().body("Especifique o nome do projeto ou a empresa.");
         }
 
         // Lista para armazenar os resultados da pesquisa
@@ -124,10 +124,11 @@ public class ProjetoController {
         // Verifica se foram encontrados projetos
         if (!projetos.isEmpty()) {
             // Se foram encontrados, retorna uma mensagem de sucesso e os resultados
-            return ResponseEntity.ok("A busca foi realizada com sucesso. Existe um projeto e uma empresa como você pesquisou: " + projetos);
+            return projetos;
+            //return ResponseEntity.ok("A busca foi realizada com sucesso. Existe um projeto e uma empresa como você pesquisou: " + projetos);
         } else {
             // Se não foram encontrados, retorna uma mensagem indicando que nenhum resultado foi encontrado
-            return ResponseEntity.ok("A busca não encontrou nenhum resultado.");
+            return (List<Projeto>) ResponseEntity.ok("A busca não encontrou nenhum resultado.");
         }
     }
 
