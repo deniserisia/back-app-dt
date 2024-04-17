@@ -4,7 +4,6 @@ import great.project.backapp.model.StatusProjeto;
 import great.project.backapp.model.dto.ProjetoDTO;
 import great.project.backapp.model.entity.Projeto;
 import great.project.backapp.repository.ProjetoRepository;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
