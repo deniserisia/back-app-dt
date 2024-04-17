@@ -8,7 +8,7 @@ COPY . .
 
 RUN apt-get install maven -y
 
-RUN mvn clean install
+RUN mvn clean compile install site
 
 FROM openjdk:18-jdk-slim
 
@@ -18,6 +18,5 @@ EXPOSE 8084
 
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
-
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
