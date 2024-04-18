@@ -1,23 +1,20 @@
 FROM ubuntu:latest AS BUILD
 
-RUN apt-get update
+RUN apt-get update && \
+    apt-get install -y openjdk-18-jdk maven
 
-RUN apt-get install openjdk-18-jdk -y
-
-RUN apt-get install maven -y
-
-RUN mvn clean
-
-RUN mvn compile
-
-RUN mvn install
-
-FROM openjdk:18-jdk-slim
+WORKDIR /app
 
 COPY . .
 
-EXPOSE 8084
+RUN mvn clean compile install
+
+FROM openjdk:18-jdk-slim
+
+WORKDIR /app
 
 COPY --from=BUILD /app/target/back-app-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8084
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
