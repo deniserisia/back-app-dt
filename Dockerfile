@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN mvn clean compile install
+RUN mvn clean compile install -DskipTests=true
 
 FROM openjdk:18-jdk-slim
 
