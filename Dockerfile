@@ -12,7 +12,6 @@ RUN mvn clean install
 
 FROM openjdk:18-jdk-slim
 
-ENTRYPOINT ["java","-jar","/app.jar"]
 EXPOSE 5432
 EXPOSE 8084
 
