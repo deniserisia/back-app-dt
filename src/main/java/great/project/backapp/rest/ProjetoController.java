@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/gerente/projeto")
+@RequestMapping("/usuario/projeto")
 public class ProjetoController {
 
     @Autowired
