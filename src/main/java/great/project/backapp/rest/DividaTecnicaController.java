@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/usuario/divida-tecnica")
+@RequestMapping("/gerente/divida-tecnica")
 public class DividaTecnicaController {
     @Autowired
     private DividaTecnicaRepository dividaTecnicaRepository;
