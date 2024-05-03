@@ -2,7 +2,6 @@ package great.project.backapp.rest;
 
 import great.project.backapp.exception.UsuarioCadastradoException;
 import great.project.backapp.model.entity.Usuario;
-import great.project.backapp.model.entity.UsuarioDTO;
 import great.project.backapp.service.PerfilUsuarioService;
 import great.project.backapp.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +32,10 @@ public class UsuarioController {
     }
 
     @GetMapping("/perfil")
-    public ResponseEntity<UsuarioDTO> obterPerfilUsuario() {
-        UsuarioDTO usuarioDTO = perfilUsuarioService.obterUsuarioAutenticado();
-        return ResponseEntity.ok(usuarioDTO);
+    public ResponseEntity<Usuario> obterPerfilUsuario() {
+        Usuario usuario = perfilUsuarioService.obterUsuarioAutenticado();
+        return ResponseEntity.ok(usuario);
     }
+
 
 }
