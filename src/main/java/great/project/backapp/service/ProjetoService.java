@@ -20,8 +20,5 @@ public class ProjetoService {
         return projetoRepository.findByNomeDoProjetoAndEmpresa(nomeDoProjeto, empresa);
     }
 
-    //public List<Projeto> obterProjetosPorUsuario(UUID idUser) {
-    //    return projetoRepository.findByUsuarioId(idUser);
-    //}
 
 }
