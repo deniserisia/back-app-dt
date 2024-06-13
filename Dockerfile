@@ -1,7 +1,7 @@
-FROM ubuntu:latest AS BUILD
+FROM eclipse-temurin:18-jdk AS BUILD
 
 RUN apt-get update && \
-    apt-get install -y openjdk-18-jdk maven
+    apt-get install -y maven
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY . .
 
 RUN mvn clean compile install -DskipTests=true
 
-FROM openjdk:18-jdk-slim
+FROM eclipse-temurin:18-jdk
 
 WORKDIR /app
 
